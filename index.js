@@ -15,6 +15,17 @@ app.use(express.json());
 
 app.post('/barraqueiros', async (req, res) => {
     const { nome, classe, nivel, vida, deboche, forca, recalque, frase } = req.body;
+
+    // Definir as classes válidas
+    const classesValidas = ['Rainha do Deboche', 'Mestre do Recalque', 'Guerreiro da Fofoca', 'Mago do Veneno', 'Stalker', 'Fofoqueira do Bairro', 'Pick Me', 'Macho Tóxico', 'Militante'];
+
+    // Verificar se a classe é válida
+    if (!classesValidas.includes(classe)) {
+        return res.status(400).json({
+            message: `Classe inválida. As classes válidas são: ${classesValidas.join(', ')}`
+        });
+    }
+
     const query = `INSERT INTO barraqueiros (nome, classe, nivel, vida, deboche, forca, recalque, frase) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
     const values = [nome, classe, nivel, vida, deboche, forca, recalque, frase ];
     try{
@@ -25,7 +36,6 @@ app.post('/barraqueiros', async (req, res) => {
         res.status(500).json({
             message: 'Erro ao criar o barraqueiro'
         });
-
     }
 });
 
@@ -100,6 +110,25 @@ app.delete('/barraqueiros/:id', async (req, res) => {
     }
 }
 );
+
+app.get('/barraqueiros/nome/:nome', async (req, res) => {
+    const { nome } = req.params;
+    const query = `SELECT * FROM barraqueiros WHERE nome = $1`;
+    const values = [nome];
+    try{
+        const result = await pool.query(query, values);
+        if (result.rows.length > 0) {
+            res.status(200).json(result.rows[0]);
+        } else {
+            res.status(404).json({ message: 'Barraqueiro não encontrado' });
+        }
+    }catch(error){
+        console.error('Erro ao buscar o barraqueiro:', error)
+        res.status(500).json({
+            message: 'Erro ao buscar o barraqueiro'
+        });
+    }
+});
 
 app.get('/batalhas/:id1/:id2', async (req, res) => {
     const { id1, id2 } = req.params;
