@@ -3,7 +3,7 @@
 Esta API permite que você gerencie uma batalha de barraqueiros. Você pode criar, ler, atualizar e deletar barraqueiros, bem como gerenciar batalhas entre eles.
 
 <p align="center">
-  <img src="Uhttps://images2.memedroid.com/images/UPLOADED31/51f8596cd11a6.jpeg" alt="Texto alternativo" width="200"/>
+  <img src="assets/adoro-um-barraco.jpg" alt="Texto alternativo" width="200"/>
 </p>
 
 ## Endpoints
