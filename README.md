@@ -70,7 +70,7 @@ Remove a batalha selecionada pelo id passado no parâmetro da rota.
 - Node.js
 - Express
 - PostgreSQL
-- Jest (para testes)
+- Insomnia (para testes)
 
 ## Contribuindo
 
