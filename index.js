@@ -14,12 +14,12 @@ const pool = new Pool({
 app.use(express.json());
 
 app.post('/barraqueiros', async (req, res) => {
-    const { nome, idade, classe, nivel, vida, deboche, forca, recalque, fase } = req.body;
-    const query = `INSERT INTO barraqueiros (nome, idade, classe, nivel, vida, deboche, forca, recalque, fase) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
-    const values = [nome, idade, classe, nivel, vida, deboche, forca, recalque, fase ];
+    const { nome, classe, nivel, vida, deboche, forca, recalque, frase } = req.body;
+    const query = `INSERT INTO barraqueiros (nome, classe, nivel, vida, deboche, forca, recalque, frase) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
+    const values = [nome, classe, nivel, vida, deboche, forca, recalque, frase ];
     try{
       const result = await pool.query(query, values);
-      res.status(201).json(result.rows[0]);
+      res.status(201).json(result.rows);
     }catch(error){
         console.error('Erro ao criar o barraqueiro:', error)
         res.status(500).json({
@@ -45,3 +45,27 @@ app.get('/barraqueiros', async (req, res) => {
 }
 );
 
+
+app.get('/barraqueiros/:id', async (req, res) => {
+    const { id } = req.params;
+    const query = `SELECT * FROM barraqueiros WHERE id = $1`;
+    const values = [id];
+    try{
+        const result = await
+        pool.query(query, values);
+        res.status(200).json(result.rows);
+    }catch(error){
+        console.error('Erro ao buscar o barraqueiro:', error)
+        res.status(500).json({
+            message: 'Erro ao buscar o barraqueiro'
+        });
+
+    }
+}
+);
+
+
+
+app.listen(port, () => {
+    console.log(`Bafafa na porta ${port} 😈`);
+  });
