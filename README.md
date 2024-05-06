@@ -49,6 +49,10 @@ Retorna uma batalha específica, onde `:id` é o ID da batalha.
 
 Retorna uma lista de batalhas em que o barraqueiro com o nome `:nome` participou.
 
+### `DELETE /batalhas/id`
+
+Remove a batalha selecionada pelo id passado no parâmetro da rota.
+
 ## Como rodar localmente
 
 1. Clone este repositório

@@ -203,6 +203,21 @@ app.get("/batalhas/:id1/:id2", async (req, res) => {
   }
 });
 
+app.delete("/batalhas/:id", async (req, res) => {
+  const { id } = req.params;
+  const query = `DELETE FROM batalhas WHERE id = $1`;
+  const values = [id];
+  try {
+    const result = await pool.query(query, values);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Erro ao deletar a batalha:", error);
+    res.status(500).json({
+      message: "Erro ao deletar a batalha",
+    });
+  }
+});
+
 app.get("/historico", async (req, res) => {
   const query = `
         SELECT b.*, 
