@@ -183,20 +183,24 @@ app.get('/batalhas/:id1/:id2', async (req, res) => {
 });
 
 app.get('/batalhas', async (req, res) => {
-    const query = `SELECT * FROM batalhas`;
+    const query = `
+        SELECT b.*, 
+            v.nome as vencedor_nome, v.classe as vencedor_classe, v.nivel as vencedor_nivel, v.vida as vencedor_vida, v.deboche as vencedor_deboche, v.forca as vencedor_forca, v.recalque as vencedor_recalque, v.frase as vencedor_frase,
+            p.nome as perdedor_nome, p.classe as perdedor_classe, p.nivel as perdedor_nivel, p.vida as perdedor_vida, p.deboche as perdedor_deboche, p.forca as perdedor_forca, p.recalque as perdedor_recalque
+        FROM batalhas b
+        JOIN barraqueiros v ON b.vencedor = v.id
+        JOIN barraqueiros p ON b.rebaixada = p.id
+    `;
     try{
-        const result = await
-        pool.query(query);
+        const result = await pool.query(query);
         res.status(200).json(result.rows);
     }catch(error){
         console.error('Erro ao buscar as batalhas:', error)
         res.status(500).json({
             message: 'Erro ao buscar as batalhas'
         });
-
     }
-}
-);
+});
 
 app.get('/batalhas/:id', async (req, res) => {
     const { id } = req.params;
