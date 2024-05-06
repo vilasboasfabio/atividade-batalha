@@ -101,6 +101,47 @@ app.delete('/barraqueiros/:id', async (req, res) => {
 }
 );
 
+app.get('/batalhas/:id1/:id2', async (req, res) => {
+    const { id1, id2 } = req.params;
+    try{
+        // Buscar os barraqueiros
+        const queryBarraqueiro = `SELECT * FROM barraqueiros WHERE id = $1`;
+        const barraqueiro1 = (await pool.query(queryBarraqueiro, [id1])).rows[0];
+        const barraqueiro2 = (await pool.query(queryBarraqueiro, [id2])).rows[0];
+
+        // Calcular a força total
+        const forcaTotal1 = barraqueiro1.vida + barraqueiro1.deboche + barraqueiro1.forca - barraqueiro1.recalque;
+        const forcaTotal2 = barraqueiro2.vida + barraqueiro2.deboche + barraqueiro2.forca - barraqueiro2.recalque;
+
+        // Determinar o vencedor e o perdedor
+        let vencedor, perdedor;
+        if (forcaTotal1 > forcaTotal2) {
+            vencedor = barraqueiro1;
+            perdedor = barraqueiro2;
+        } else {
+            vencedor = barraqueiro2;
+            perdedor = barraqueiro1;
+        }
+        console.log(vencedor)
+
+        // Salvar a batalha na tabela de batalhas
+        const queryBatalha = `INSERT INTO batalhas (barraqueiro1, barraqueiro2, vencedor, rebaixada, frase_vencedor, data) VALUES ($1, $2, $3, $4, $5, NOW())`;
+        const valuesBatalha = [id1, id2, vencedor.id, perdedor.id, vencedor.frase];
+        await pool.query(queryBatalha, valuesBatalha);
+
+        // Retornar o resultado da batalha
+        res.status(200).json({
+            message: `O vencedor é ${vencedor.nome} com a frase: ${vencedor.frase}`
+        });
+    }catch(error){
+        console.error('Erro na batalha:', error)
+        res.status(500).json({
+            message: 'Erro na batalha'
+        });
+    }
+});
+
+
 app.listen(port, () => {
     console.log(`Bafafa na porta ${port} 😈`);
   });
