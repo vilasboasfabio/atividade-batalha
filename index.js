@@ -157,6 +157,25 @@ app.get('/batalhas', async (req, res) => {
 }
 );
 
+app.get('/batalhas/:id', async (req, res) => {
+    const { id } = req.params;
+    const query = `SELECT * FROM batalhas WHERE id = $1`;
+    const values = [id];
+    try{
+        const result = await
+        pool.query(query, values);
+        res.status(200).json(result.rows);
+    }catch(error){
+        console.error('Erro ao buscar a batalha:', error)
+        res.status(500).json({
+            message: 'Erro ao buscar a batalha'
+        });
+
+    }
+}
+);
+
+
 app.listen(port, () => {
     console.log(`Bafafa na porta ${port} 😈`);
   });
