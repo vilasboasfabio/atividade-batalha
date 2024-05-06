@@ -220,6 +220,12 @@ app.get('/batalhas/:id', async (req, res) => {
 }
 );
 
+app.get('/', (req, res) => {
+    res.status(200).send(`
+        <p>Ai como adoro.</p>
+        <img src="https://www.criarmeme.com.br/meme/meme-22392-opa!-vai-comecar-o-barraco--kkkk.jpg" alt="Meme Image"/>
+    `);
+});
 
 app.listen(port, () => {
     console.log(`Bafafa na porta ${port} 😈`);
