@@ -138,9 +138,22 @@ app.get('/batalhas/:id1/:id2', async (req, res) => {
         const barraqueiro1 = (await pool.query(queryBarraqueiro, [id1])).rows[0];
         const barraqueiro2 = (await pool.query(queryBarraqueiro, [id2])).rows[0];
 
+        // Definir os pontos extras por classe
+        const pontosPorClasse = {
+            'Rainha do Deboche': 100,
+            'Mestre do Recalque': 20,
+            'Guerreiro da Fofoca': 30,
+            'Mago do Veneno': 40,
+            'Stalker': 50,
+            'Fofoqueira do Bairro': 90,
+            'Pick Me': 50,
+            'Macho Tóxico': 10,
+            'Militante': 80
+        };
+
         // Calcular a força total
-        const forcaTotal1 = barraqueiro1.vida + barraqueiro1.deboche + barraqueiro1.forca - barraqueiro1.recalque;
-        const forcaTotal2 = barraqueiro2.vida + barraqueiro2.deboche + barraqueiro2.forca - barraqueiro2.recalque;
+        const forcaTotal1 = barraqueiro1.vida + barraqueiro1.deboche + barraqueiro1.forca - barraqueiro1.recalque + (pontosPorClasse[barraqueiro1.classe] || 0);
+        const forcaTotal2 = barraqueiro2.vida + barraqueiro2.deboche + barraqueiro2.forca - barraqueiro2.recalque + (pontosPorClasse[barraqueiro2.classe] || 0);
 
         // Determinar o vencedor e o perdedor
         let vencedor, perdedor;
@@ -151,7 +164,6 @@ app.get('/batalhas/:id1/:id2', async (req, res) => {
             vencedor = barraqueiro2;
             perdedor = barraqueiro1;
         }
-        console.log(vencedor)
 
         // Salvar a batalha na tabela de batalhas
         const queryBatalha = `INSERT INTO batalhas (barraqueiro1, barraqueiro2, vencedor, rebaixada, frase_vencedor, data) VALUES ($1, $2, $3, $4, $5, NOW())`;
