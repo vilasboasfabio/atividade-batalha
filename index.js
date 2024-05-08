@@ -141,15 +141,20 @@ app.get("/barraqueiros/nome/:nome", async (req, res) => {
   }
 });
 
+// Define a rota para obter o resultado de uma batalha entre dois barraqueiros
 app.get("/batalhas/:id1/:id2", async (req, res) => {
+  // Extrai os IDs dos barraqueiros dos parâmetros da rota
   const { id1, id2 } = req.params;
+
   try {
-    // Buscar os barraqueiros
+    // Define a consulta SQL para buscar um barraqueiro pelo ID
     const queryBarraqueiro = `SELECT * FROM barraqueiros WHERE id = $1`;
+
+    // Executa a consulta para buscar os dois barraqueiros
     const barraqueiro1 = (await pool.query(queryBarraqueiro, [id1])).rows[0];
     const barraqueiro2 = (await pool.query(queryBarraqueiro, [id2])).rows[0];
 
-    // Definir os pontos extras por classe
+    // Define um objeto que mapeia cada classe de barraqueiro para seus pontos extras
     const pontosPorClasse = {
       "Rainha do Deboche": 100,
       "Mestre do Recalque": 20,
@@ -162,7 +167,7 @@ app.get("/batalhas/:id1/:id2", async (req, res) => {
       Militante: 80,
     };
 
-    // Calcular a força total
+    // Calcula a força total de cada barraqueiro, que é a soma de sua vida, deboche e força, menos seu recalque, mais seus pontos extras
     const forcaTotal1 =
       barraqueiro1.vida +
       barraqueiro1.deboche +
@@ -176,7 +181,7 @@ app.get("/batalhas/:id1/:id2", async (req, res) => {
       barraqueiro2.recalque +
       (pontosPorClasse[barraqueiro2.classe] || 0);
 
-    // Determinar o vencedor e o perdedor
+    // Determina o vencedor e o perdedor com base na força total
     let vencedor, perdedor;
     if (forcaTotal1 > forcaTotal2) {
       vencedor = barraqueiro1;
@@ -186,17 +191,22 @@ app.get("/batalhas/:id1/:id2", async (req, res) => {
       perdedor = barraqueiro1;
     }
 
-    // Salvar a batalha na tabela de batalhas
+    // Define a consulta SQL para inserir a batalha na tabela de batalhas
     const queryBatalha = `INSERT INTO batalhas (barraqueiro1, barraqueiro2, vencedor, rebaixada, frase_vencedor, data) VALUES ($1, $2, $3, $4, $5, NOW())`;
+
+    // Define os valores a serem inseridos na tabela de batalhas
     const valuesBatalha = [id1, id2, vencedor.id, perdedor.id, vencedor.frase];
+
+    // Executa a consulta para inserir a batalha na tabela de batalhas
     await pool.query(queryBatalha, valuesBatalha);
 
-    // Retornar o resultado da batalha mostrando os dados, tirados do banco, do vencedor
+    // Retorna o resultado da batalha, incluindo a mensagem e os dados do vencedor
     res.status(200).json({
       message: `O vencedor é ${vencedor.nome} com a frase: ${vencedor.frase}`,
       vencedor: vencedor
     });
   } catch (error) {
+    // Se ocorrer um erro, registra-o no console e retorna uma mensagem de erro
     console.error("Erro na batalha:", error);
     res.status(500).json({
       message: "Erro na batalha",
