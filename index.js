@@ -191,9 +191,10 @@ app.get("/batalhas/:id1/:id2", async (req, res) => {
     const valuesBatalha = [id1, id2, vencedor.id, perdedor.id, vencedor.frase];
     await pool.query(queryBatalha, valuesBatalha);
 
-    // Retornar o resultado da batalha
+    // Retornar o resultado da batalha mostrando os dados, tirados do banco, do vencedor
     res.status(200).json({
       message: `O vencedor é ${vencedor.nome} com a frase: ${vencedor.frase}`,
+      vencedor: vencedor
     });
   } catch (error) {
     console.error("Erro na batalha:", error);
