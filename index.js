@@ -181,40 +181,40 @@ app.get("/batalhas/:id1/:id2", async (req, res) => {
       barraqueiro2.recalque +
       (pontosPorClasse[barraqueiro2.classe] || 0);
 
-    // Determina o vencedor e o perdedor com base na força total
-    let vencedor, perdedor, empate;
-    if (forcaTotal1 > forcaTotal2) {
-      vencedor = barraqueiro1;
-      perdedor = barraqueiro2;
-      empate = false;
-    } else if (forcaTotal1 < forcaTotal2) {
-      vencedor = barraqueiro2;
-      perdedor = barraqueiro1;
-      empate = false;
-    } else {
-      empate = true;
-    }
+// Determina o vencedor e o perdedor com base na força total
+let vencedor, perdedor, empate, fraseVencedor;
+if (forcaTotal1 >= forcaTotal2) { // Alterado para incluir o empate
+  vencedor = barraqueiro1;
+  perdedor = barraqueiro2;
+  empate = forcaTotal1 === forcaTotal2; // Adicionado para verificar o empate
+  fraseVencedor = empate ? "Ops, deu empate" : vencedor.frase; // Alterado para verificar o empate
+} else {
+  vencedor = barraqueiro2;
+  perdedor = barraqueiro1;
+  fraseVencedor = vencedor.frase;
+}
 
-    if (empate) {
-      res.status(200).json({
-        message: "A batalha terminou em empate!",
-      });
-    } else {
-      // Define a consulta SQL para inserir a batalha na tabela de batalhas
-      const queryBatalha = `INSERT INTO batalhas (barraqueiro1, barraqueiro2, vencedor, rebaixada, frase_vencedor, data) VALUES ($1, $2, $3, $4, $5, NOW())`;
-    
-      // Define os valores a serem inseridos na tabela de batalhas
-      const valuesBatalha = [id1, id2, vencedor.id, perdedor.id, vencedor.frase];
-    
-      // Executa a consulta para inserir a batalha na tabela de batalhas
-      await pool.query(queryBatalha, valuesBatalha);
-    
-      // Retorna o resultado da batalha, incluindo a mensagem e os dados do vencedor
-      res.status(200).json({
-        message: `O vencedor é ${vencedor.nome} com a frase: ${vencedor.frase}`,
-        vencedor: vencedor
-      });
-    }
+// Define a consulta SQL para inserir a batalha na tabela de batalhas
+const queryBatalha = `INSERT INTO batalhas (barraqueiro1, barraqueiro2, vencedor, rebaixada, frase_vencedor, data) VALUES ($1, $2, $3, $4, $5, NOW())`;
+
+// Define os valores a serem inseridos na tabela de batalhas
+const valuesBatalha = [id1, id2, vencedor ? vencedor.id : null, perdedor ? perdedor.id : null, fraseVencedor];
+
+// Executa a consulta para inserir a batalha na tabela de batalhas
+await pool.query(queryBatalha, valuesBatalha);
+
+if (empate) {
+  // Retorna o resultado da batalha, indicando que houve um empate
+  res.status(200).json({
+    message: "A batalha terminou em empate!",
+  });
+} else {
+  // Retorna o resultado da batalha, incluindo a mensagem e os dados do vencedor
+  res.status(200).json({
+    message: `O vencedor é ${vencedor.nome} com a frase: ${vencedor.frase}`,
+    vencedor: vencedor
+  });
+}
   } catch (error) {
     // Se ocorrer um erro, registra-o no console e retorna uma mensagem de erro
     console.error("Erro na batalha:", error);
